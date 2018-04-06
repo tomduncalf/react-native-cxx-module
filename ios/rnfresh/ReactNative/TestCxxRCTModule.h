@@ -1,9 +1,16 @@
+/**
+ * Required Objective C wrapper class for CxxNativeModule
+ */
+
 #pragma one
 
 #import <CxxModule/RCTCxxModule.h>
 
-@interface TestCxxModule : RCTCxxModule {
-}
+#import "ModuleRegistry.h"
+
+@interface TestCxxModule : RCTCxxModule
+
+- initWithModuleRegistry: (ModuleRegistry*) moduleRegistry;
 
 @end
 

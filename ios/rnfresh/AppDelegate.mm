@@ -9,13 +9,20 @@
 
 #import "AppDelegate.h"
 
+#import "ReactNative/ModuleRegistry.h"
 #import "ReactNative/TestCxxRCTModule.h"
 
-@implementation AppDelegate
+@implementation AppDelegate {
+  ModuleRegistry* moduleRegistry;
+}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  id<RCTBridgeDelegate> moduleInitialiser = [[BridgeDelegate alloc] init];
+  // Create a module registry to keep a reference to the CxxNativeModule, which we will pass
+  // through to the relevant places. Could equally make this a singleton.
+  moduleRegistry = new ModuleRegistry();
+
+  id<RCTBridgeDelegate> moduleInitialiser = [[BridgeDelegate alloc] initWithModuleRegistry: moduleRegistry];  
   
   RCTBridge* bridge = [[RCTBridge alloc] initWithDelegate: moduleInitialiser launchOptions: launchOptions];
   
@@ -23,15 +30,11 @@
                                                    moduleName:@"TestCxx"
                                             initialProperties:nil];
   
-  TestCxxModule* module = [bridge moduleForName:@"TestCxxModule"];
-  // 1. Is there a better way to cause the module to lazily initialize itself before I want to use it?
-  [module methodsToExport];
-  
-  // 2. `module` now contains the TestCxxModule Obj-C wrapper, but how do I get the actual C++ module it wraps?
-  // Should I just keep my own reference to it inside my wrapper, or is there a proper way to do get it?
-  
-  // 3. Even if I can access the actual C++ module inside, its instance_ property is null (put a breakpoint here to see)
-  // - is this correct? If so, how can I access a React Native instance to callback to JS from C++?
+  // Make a call to the module to emit an event to JS. Needs a small delay otherwise the module
+  // is not properly initialised.
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+    moduleRegistry->testModule->testJsEvent();
+  });
 
   self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
   UIViewController *rootViewController = [UIViewController new];

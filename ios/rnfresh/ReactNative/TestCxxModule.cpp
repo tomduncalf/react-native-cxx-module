@@ -14,6 +14,11 @@ using namespace facebook::xplat;
 
 namespace TestCxx {
 
+TestCxxModule::TestCxxModule(ModuleRegistry* moduleRegistry) {
+  // Store a reference to itself in the module registry once initialised
+  moduleRegistry->testModule = this;
+}
+  
 std::string TestCxxModule::getName() {
   return "TestCxxModule";
 }
@@ -41,7 +46,7 @@ void TestCxxModule::emitEvent (dynamic eventData)
     
 void TestCxxModule::testJsEvent ()
 {
-    emitEvent (dynamic::array ("hello", "world"));
+    emitEvent (dynamic::array ("update", "hello world"));
 }
     
 }

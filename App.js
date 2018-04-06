@@ -10,10 +10,16 @@ import {
   StyleSheet,
   Text,
   View,
-  NativeModules
+  NativeModules,
+  NativeEventEmitter,
 } from 'react-native';
 
-NativeModules.TestCxxModule.test();
+const { TestCxxModule } = NativeModules;
+
+TestCxxModule.test();
+
+const emitter = new NativeEventEmitter(TestCxxModule);
+emitter.addListener('update', (data) => console.log('Data from C++', data));
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' +
